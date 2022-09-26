@@ -2,8 +2,11 @@ package com.example.todoapi.service;
 
 import com.example.todoapi.model.TodoEntity;
 import com.example.todoapi.persistence.TodoRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+@Slf4j
 @Service
 public class TodoServiceImpl implements TodoService{
     private final TodoRepository repository;
@@ -13,10 +16,25 @@ public class TodoServiceImpl implements TodoService{
     }
 
     @Override
-    public String testTodoData() throws Exception {
-        TodoEntity entity = TodoEntity.builder().title("My Test todo item").build();
+    public List<TodoEntity> create(TodoEntity entity) {
+
+        //Validations
+        validata(entity);
+        //Save
         repository.save(entity);
-        TodoEntity saveEntity = repository.findById(entity.getId()).get();
-        return saveEntity.getTitle();
+        log.info ("Entity Id {} is saved. ", entity.getId());
+
+        return repository.findByUserId(entity.getUserId());
+    }
+
+    private void validata(TodoEntity entity){
+        if (entity == null){
+            log.warn("Entity cannot be null");
+            throw new RuntimeException("Entity cannot be null.");
+        }
+        if(entity.getUserId() == null){
+            log.warn("Unknown user.");
+            throw new RuntimeException("Unknown user.");
+        }
     }
 }
