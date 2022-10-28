@@ -24,7 +24,6 @@ public class TodoServiceImpl implements TodoService{
         //Save
         repository.save(entity);
         log.info ("Entity Id {} is saved. ", entity.getId());
-
         return repository.findByUserId(entity.getUserId());
     }
 
@@ -44,6 +43,7 @@ public class TodoServiceImpl implements TodoService{
             todo.setTitle(entity.getTitle());
             todo.setDone(entity.isDone());
             repository.save(todo);
+            log.info ("Entity Id {} is Update. ", entity.getId());
         }
 
         return retrieve(entity.getUserId());
@@ -52,8 +52,8 @@ public class TodoServiceImpl implements TodoService{
     @Override
     public List<TodoEntity> delete(TodoEntity entity) {
         validata(entity);
-
         try{
+            log.info ("Entity Id {} is Delete. ", entity.getId());
             repository.delete(entity);
         }catch (Exception e){
             log.error("error deleting entity",entity.getId(),e);
