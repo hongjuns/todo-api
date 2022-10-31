@@ -8,29 +8,29 @@ import com.example.todoapi.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
 @Slf4j
 @RestController
 @RequestMapping("/auth")
 public class UserController {
-
     @Autowired
     private UserService userService;
-
     @Autowired
     private TokenProvider tokenProvider;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
     @PostMapping("/signup")
     public ResponseEntity<?> registerUser (@RequestBody UserDTO userDTO){
         try{
             UserEntity user = UserEntity.builder()
                     .email(userDTO.getEmail())
                     .username(userDTO.getUsername())
-                    .password(userDTO.getPassword())
+                    .password(passwordEncoder.encode(userDTO.getPassword()))
                     .build();
 
             UserEntity registeredUser = userService.create(user);
@@ -45,10 +45,12 @@ public class UserController {
             return ResponseEntity.badRequest().body(responseDTO);
         }
     }
-
     @PostMapping("/signin")
     public ResponseEntity<?> authenticate(@RequestBody UserDTO userDTO){
-        UserEntity user = userService.getByCredentials(userDTO.getEmail(), userDTO.getPassword());
+        UserEntity user = userService.getByCredentials(
+                userDTO.getEmail(),
+                userDTO.getPassword(),
+                passwordEncoder);
 
         if(user != null){
             String token = tokenProvider.create(user);
