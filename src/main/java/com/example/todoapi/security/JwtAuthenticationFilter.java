@@ -1,6 +1,9 @@
 package com.example.todoapi.security;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -16,6 +19,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.security.SignatureException;
+
 @Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -42,10 +48,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
                 securityContext.setAuthentication(authentication);
                 SecurityContextHolder.setContext(securityContext);
+            }else{
+                String path = request.getServletPath();
+                if(!path.contains("auth")) {
+                    log.warn("couldn't find bearer string, will ignore the header");
+                    throw new JwtException("token not found");
+                }
             }
-        } catch (Exception ex) {
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            logger.error("Could not set user authentication in security context", ex);
+        } catch (IllegalArgumentException e) {
+            logger.error("an error occured during getting username from token", e);
+            throw new JwtException("유효하지 않은 토큰");
+        } catch (ExpiredJwtException e) {
+            logger.warn("the token is expired and not valid anymore", e);
+            throw new JwtException("토큰 기한 만료");
+        } catch (Exception e){
+            logger.error("Could not set user authentication in security context" + e.getMessage());
+            throw new JwtException("Exception Error");
         }
 
         filterChain.doFilter(request, response);
@@ -58,4 +76,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         return  null;
     }
+
 }

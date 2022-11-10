@@ -1,6 +1,7 @@
 package com.example.todoapi.config;
 
 import com.example.todoapi.security.JwtAuthenticationFilter;
+import com.example.todoapi.security.JwtExceptionFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.filter.CorsFilter;
 @Configuration
 @EnableWebSecurity
@@ -15,6 +17,8 @@ import org.springframework.web.filter.CorsFilter;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired
+    private JwtExceptionFilter  jwtExceptionFilter;
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         // http 시큐리티 빌더
@@ -30,12 +34,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                 .antMatchers("/", "/auth/**").permitAll()
                 .anyRequest() // /와 /auth/**이외의 모든 경로는 인증 해야됨.
-                .authenticated();
+                .authenticated()
+                .and()
+                .exceptionHandling();
 
-        http.addFilterAfter(
-                jwtAuthenticationFilter,
-                CorsFilter.class
-        );
+
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        // JwtAuthenticationFilter 앞단에 JwtExceptionFilter를 위치시키겠다는 설정
+        http.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
+        //http.addFilterAfter(jwtAuthenticationFilter, CorsFilter.class);
     }
 
 }
