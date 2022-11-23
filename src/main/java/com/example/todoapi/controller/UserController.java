@@ -21,7 +21,6 @@ public class UserController {
     private UserService userService;
     @Autowired
     private TokenProvider tokenProvider;
-
     @Autowired
     private PasswordEncoder passwordEncoder;
     @PostMapping("/signup")

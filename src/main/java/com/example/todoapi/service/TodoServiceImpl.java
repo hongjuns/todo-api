@@ -22,14 +22,15 @@ public class TodoServiceImpl implements TodoService{
         //Validations
         validata(entity);
         //Save
+        entity.setPosition(repository.countByUserId(entity.getUserId()));
         repository.save(entity);
         log.info ("Entity Id {} is saved. ", entity.getId());
-        return repository.findByUserId(entity.getUserId());
+        return repository.findByUserIdOrderByPosition(entity.getUserId());
     }
 
     @Override
     public List<TodoEntity> retrieve(String userId) {
-        return repository.findByUserId(userId);
+        return repository.findByUserIdOrderByPosition(userId);
     }
 
     @Override
@@ -58,6 +59,27 @@ public class TodoServiceImpl implements TodoService{
         }catch (Exception e){
             log.error("error deleting entity",entity.getId(),e);
             throw new RuntimeException("error deleting entity" + e.getMessage());
+        }
+        return retrieve(entity.getUserId());
+    }
+
+
+    @Override
+    public List<TodoEntity> changePosition(TodoEntity entity) {
+        validata(entity);
+        Optional<TodoEntity> original = repository.findById(entity.getId());
+        if(original.isPresent()){
+            TodoEntity todo = original.get();
+            Long oldPosition = todo.getPosition();
+            Long newPosition = entity.getPosition();
+
+            repository.decrementBelow(oldPosition,todo.getId());
+            repository.incrementBelow(newPosition,todo.getId());
+
+            todo.setPosition(entity.getPosition());
+
+            repository.save(todo);
+            log.info ("Entity LIst is Value :: " + retrieve(entity.getUserId()));
         }
         return retrieve(entity.getUserId());
     }

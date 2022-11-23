@@ -9,6 +9,6 @@ public interface TodoService {
      List<TodoEntity> retrieve (String userId);
      List<TodoEntity> update (TodoEntity entity);
      List<TodoEntity> delete (TodoEntity entity);
-
+     List<TodoEntity> changePosition (TodoEntity entity);
 }
 

@@ -13,11 +13,13 @@ public class TodoDTO {
     private String id;
     private String title;
     private boolean done;
+    private Long position;
 
     public TodoDTO(final TodoEntity entity){
         this.id=entity.getId();
         this.title=entity.getTitle();
         this.done=entity.isDone();
+        this.position=entity.getPosition();
     }
 
     public static TodoEntity toEntity(TodoDTO dto){
@@ -25,6 +27,7 @@ public class TodoDTO {
                 .id(dto.getId())
                 .title(dto.title)
                 .done(dto.isDone())
+                .position(dto.getPosition())
                 .build();
     }
 }
