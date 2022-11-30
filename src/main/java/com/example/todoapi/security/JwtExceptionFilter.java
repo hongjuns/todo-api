@@ -27,6 +27,7 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
         res.setContentType("application/json; charset=UTF-8");
         JSONObject responseJson = new JSONObject();
         responseJson.put("message", ex.getMessage());
+        responseJson.put("status", 401);
         res.getWriter().print(responseJson);
     }
 }
