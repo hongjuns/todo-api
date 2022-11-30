@@ -18,3 +18,22 @@ Spring Boot 이용한 Todo List Backend
 $ cd <프로젝트 디렉터리>/demo
 $ ./gradlew bootRun
 ```
+
+## REST API
+
+### Todo
+
+| Method     | URI                               | Action                                                  |
+|------------|-----------------------------------|---------------------------------------------------------|
+| `GET`      | `select`                          | `App\Http\Controllers\TodoController@selectTodo`    |
+| `POST`     | `create`                          | `App\Http\Controllers\TodoController@createTodo`    |
+| `PUT`      | `update`                          | `App\Http\Controllers\TodoController@updateTodo`    |
+| `DELETE`   | `delete`                          | `App\Http\Controllers\TodoController@deleteTodo`    |
+| `PUT`      | `position`                        | `App\Http\Controllers\TodoController@updateChangeTodo` |
+
+### User
+
+| Method     | URI                               | Action                                                  |
+|------------|-----------------------------------|---------------------------------------------------------|
+| `POST`     | `signup`                          | `App\Http\Controllers\UserController@registerUser`    |
+| `POST`     | `signin`                          | `App\Http\Controllers\UserController@authenticate`    |
